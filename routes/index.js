@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: './database.sqlite'
+  storage: '../database.sqlite'
 });
 
 const Model = Sequelize.Model;
@@ -23,10 +23,10 @@ Foos.init({
         autoIncrement: true,
         primaryKey: true
     },
-    foo_store: Sequelize.TEXT,
-    foo_time: Sequelize.TEXT,
-    foo_type: Sequelize.TEXT,
-    foo_url: Sequelize.TEXT,
+    foo_store: Sequelize.STRING,
+    foo_time: Sequelize.STRING,
+    foo_keyword: Sequelize.TEXT,
+    foo_url: Sequelize.STRING,
     foo_count: { 
         type: Sequelize.INTEGER,
         defaultValue: 0
@@ -50,7 +50,7 @@ router.get('/load',function(req,res){
                         Foos.create({
                             foo_store: body[i].foo_store,
                             foo_time: body[i].foo_time,
-                            foo_type: body[i].foo_type,
+                            foo_keyword: body[i].foo_keyword,
                             foo_url: body[i].foo_url,
                         });
                     }
@@ -64,22 +64,31 @@ router.get('/load',function(req,res){
 });
 
 router.get('/webhook', function(req, res){
+    var data = req.query;
     var Op = Sequelize.Op
-
-    Foos.findAll({
-        where: {
-            foo_type: {
-                [Op.substring]: '麵'
-            },
-            foo_time: {
-                [Op.substring]: '午餐'
+    console.dir(data.foo_keyword);
+    if(data.foo_keyword == '') {
+        Foos.findAll({
+            [Op.or]: {
+                foo_keyword: {
+                    [Op.substring]: data.foo_keyword
+                },
+                foo_time: {
+                    [Op.substring]: data.foo_time
+                }
             }
-        }
-    }).
-    then(function(result){
-        var index_num = Math.floor(Math.random()*result.length);
-        res.json(result[index_num]);
-    });   
+        })
+        .then(function(result){
+            var index_num = Math.floor(Math.random()*result.length);
+            res.json(result);
+        });   
+    } else {
+        Foos.findAll({})
+        .then(function(result){
+            var index_num = Math.floor(Math.random()*result.length);
+            res.json(result);
+        });   
+    }
 });
 
 router.post('/webhook', function(req, res){
@@ -91,15 +100,15 @@ router.post('/webhook', function(req, res){
 
     Foos.findAll({
         where: {
-            foo_type: {
+            foo_keyword: {
                 [Op.substring]: foo_keyword
             },
             foo_time: {
                 [Op.substring]: foo_time
             }
         }
-    }).
-    then(function(result){
+    })
+    .then(function(result){
         var index_num = Math.floor(Math.random()*result.length);
         if( result.length > 0) {
             res.json({fulfillmentText:"推薦您吃這家 " + result[index_num].foo_store + result[index_num].foo_url +" 希望您滿意!"});    
