@@ -64,19 +64,50 @@ router.get('/load',function(req,res){
 });
 
 router.get('/webhook', function(req, res){
-    Foos.findAll({}).
+    var Op = Sequelize.Op
+
+    Foos.findAll({
+        where: {
+            foo_type: {
+                [Op.substring]: '麵'
+            },
+            foo_time: {
+                [Op.substring]: '午餐'
+            }
+        }
+    }).
     then(function(result){
-        res.json(result);   
+        var index_num = Math.floor(Math.random()*result.length);
+        res.json(result[index_num]);
     });   
 });
 
 router.post('/webhook', function(req, res){
     var data = req.body;
-    //let queryDate = data.queryResult.parameters.date;
-    //let queryCity = data.queryResult.parameters["geo-city"];
-    console.dir(data);
-    console.log("connect me");
-    res.json({fulfillmentText:"test bot"});    
+    var foo_keyword = data.queryResult.parameters["foo_keyword"];
+    var foo_time = data.queryResult.parameters["foo_time"];
+
+    var Op = Sequelize.Op
+
+    Foos.findAll({
+        where: {
+            foo_type: {
+                [Op.substring]: foo_keyword
+            },
+            foo_time: {
+                [Op.substring]: foo_time
+            }
+        }
+    }).
+    then(function(result){
+        var index_num = Math.floor(Math.random()*result.length);
+        if( result.length > 0) {
+            res.json({fulfillmentText:"推薦您吃這家 " + result[index_num].foo_store + result[index_num].foo_url +" 希望您滿意!"});    
+        } else {
+            res.json({fulfillmentText:"您想吃的東西找不到，請再試試看別的關鍵字。"});    
+        }
+        
+    });   
 });
 
 
