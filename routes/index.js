@@ -67,14 +67,12 @@ router.get('/webhook', function(req, res){
     var data = req.query;
     var Op = Sequelize.Op
     console.dir(data.foo_keyword);
-    if(data.foo_keyword == '') {
+    if(false) {
+        console.log("A")
         Foos.findAll({
-            [Op.or]: {
+            where: {
                 foo_keyword: {
                     [Op.substring]: data.foo_keyword
-                },
-                foo_time: {
-                    [Op.substring]: data.foo_time
                 }
             }
         })
@@ -83,6 +81,7 @@ router.get('/webhook', function(req, res){
             res.json(result);
         });   
     } else {
+        console.log("B")
         Foos.findAll({})
         .then(function(result){
             var index_num = Math.floor(Math.random()*result.length);
