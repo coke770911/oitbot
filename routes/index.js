@@ -9,12 +9,10 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: '../database.sqlite'
+  storage: './database.sqlite'
 });
-
 
 const Model = Sequelize.Model;
 
@@ -40,19 +38,36 @@ Foos.init({
 
 }, { sequelize, modelName: 'Foos' });
 
-Foos.sync().then(() => {
-  return Foos.create({
-    foo_store: '粩泰泰 泰味料理',
-    foo_time: '午餐,晚餐',
-    foo_type: '飯,麵',
-    foo_url: 'https://goo.gl/maps/4qypquJYS3Cy8ema9',
-  });
+router.get('/load',function(req,res){
+    request({
+          uri:"https://sheetdb.io/api/v1/ryt19gjxt8ph8",
+          json:true
+        },function(error, response, body){
+        if(!error && response.statusCode ==200){
+            if(body.length > 0) {
+                Foos.sync({ force: true }).then(() => {
+                    for(var i = 0; i < body.length;i++) {
+                        Foos.create({
+                            foo_store: body[i].foo_store,
+                            foo_time: body[i].foo_time,
+                            foo_type: body[i].foo_type,
+                            foo_url: body[i].foo_url,
+                        });
+                    }
+                });
+            }
+            res.json("load data ok");
+        }else{
+            console.log("[google doc] failed");
+        }
+    });
 });
 
-
 router.get('/webhook', function(req, res){
-    console.dir(Foos.findAll({attributes: ['foo_store', 'foo_url']}));
-    res.json({fulfillmentText:"test bot"});   
+    Foos.findAll({}).
+    then(function(result){
+        res.json(result);   
+    });   
 });
 
 router.post('/webhook', function(req, res){
@@ -61,8 +76,7 @@ router.post('/webhook', function(req, res){
     //let queryCity = data.queryResult.parameters["geo-city"];
     console.dir(data);
     console.log("connect me");
-    res.json({fulfillmentText:"test bot"});
-      
+    res.json({fulfillmentText:"test bot"});    
 });
 
 
