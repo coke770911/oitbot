@@ -21,7 +21,7 @@ if( isWin === 'win32') {
 */
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: '../database.sqlite'
+  storage: './database.sqlite'
 });
 
 const Model = Sequelize.Model;
