@@ -75,7 +75,6 @@ router.get('/webhook', function(req, res){
     var Op = Sequelize.Op
     
     Foos.findAll({
-        /*
         where: {
             [Op.or]: [
                 {foo_keyword: { [Op.substring]: foo_keyword }},
@@ -87,7 +86,7 @@ router.get('/webhook', function(req, res){
                     {'': { [Op.eq]: foo_time }}
                 ]
             }          
-        }*/
+        }
     })
     .then(function(result){
         res.json(result);
