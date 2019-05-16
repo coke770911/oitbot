@@ -8,6 +8,8 @@ router.get('/', function(req, res, next) {
 });
 
 const Sequelize = require('sequelize');
+
+/*
 //看OS決定DB路徑
 const isWin = process.platform;
 var dbPath = '';
@@ -16,10 +18,10 @@ if( isWin === 'win32') {
 } else {
     dbPath = '../database.sqlite';
 }
-
+*/
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: dbPath
+  storage: '../database.sqlite'
 });
 
 const Model = Sequelize.Model;
