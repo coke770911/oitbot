@@ -64,7 +64,7 @@ router.get('/load',function(req,res){
             }
             res.json("load data ok");
         }else{
-            console.log("[google doc] failed");
+            console.log("[google sheet] failed");
         }
     });
 });
@@ -106,17 +106,8 @@ router.post('/webhook', function(req, res){
                 [Op.substring]: foo_keyword
             } ,
             [Op.or]: [
-                {
-                    foo_time: {
-                        [Op.substring]: foo_time
-                    }
-                },
-                {
-                    '': {
-                        [Op.eq]: foo_time
-                    }
-                }
-
+                {foo_time: {[Op.substring]: foo_time}},
+                {'': {[Op.eq]: foo_time}}
             ]            
         }
     })
