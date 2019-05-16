@@ -68,28 +68,22 @@ router.get('/load',function(req,res){
 });
 
 router.get('/webhook', function(req, res){
-    var foo_keyword = req.query.foo_keyword;
+    var foo_keyword = req.query.foo_keyword ? req.query.foo_keyword : 1;
     var foo_time = req.query.foo_time ? req.query.foo_time : 1;
     var Op = Sequelize.Op
-
+    
     Foos.findAll({
         where: {
-            foo_keyword: {
-                [Op.substring]: foo_keyword
-            } ,
             [Op.or]: [
-                {
-                  foo_time: {
-                    [Op.substring]: foo_time
-                  }
-                },
-                {
-                  '': {
-                    [Op.eq]: foo_time
-                  }
-                }
-
-            ]            
+                {foo_keyword: { [Op.substring]: foo_keyword }},
+                {'': { [Op.eq]: foo_keyword }}
+            ],
+            [Op.and]: {
+                [Op.or]: [
+                    {foo_time: { [Op.substring]: foo_time }},
+                    {'': { [Op.eq]: foo_time }}
+                ]
+            }          
         }
     })
     .then(function(result){
